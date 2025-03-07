@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待办事项管理器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f0f2f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        #taskInput {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        #addButton {
+            padding: 12px 24px;
+            background: #007bff;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        #addButton:hover {
+            background: #0056b3;
+        }
+
+        #taskList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .task-item:hover {
+            transform: translateX(5px);
+        }
+
+        .task-checkbox {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .task-text {
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .delete-btn {
+            padding: 8px 16px;
+            background: #dc3545;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #bb2d3b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="input-group">
+            <input type="text" id="taskInput" placeholder="输入新任务..." autofocus>
+            <button id="addButton" onclick="addTask()">添加任务</button>
+        </div>
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        // 加载保存的任务
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = 'task-item';
+                li.innerHTML = `
+                    <input type="checkbox" class="task-checkbox" 
+                        ${task.completed ? 'checked' : ''} 
+                        onchange="toggleTask(${index})">
+                    <span class="task-text ${task.completed ? 'completed' : ''}">
+                        ${task.text}
+                    </span>
+                    <button class="delete-btn" onclick="deleteTask(${index})">删除</button>
+                `;
+                taskList.appendChild(li);
+            });
+        }
+
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+
+            if (text) {
+                tasks.push({ text, completed: false });
+                input.value = '';
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            saveTasks();
+            renderTasks();
+        }
+
+        function toggleTask(index) {
+            tasks[index].completed = !tasks[index].completed;
+            saveTasks();
+            renderTasks();
+        }
+
+        // 初始化渲染
+        renderTasks();
+
+        // 回车键支持
+        document.getElementById('taskInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask();
+        });
+    </script>
+</body>
+</html>

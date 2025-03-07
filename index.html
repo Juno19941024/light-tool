@@ -103,6 +103,7 @@
     <div class="container">
         <div class="input-group">
             <input type="text" id="taskInput" placeholder="输入新任务..." autofocus>
+            <input type="date" id="taskDate" style="padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
             <button id="addButton" onclick="addTask()">添加任务</button>
         </div>
         <ul id="taskList"></ul>
@@ -130,6 +131,7 @@
                     <span class="task-text ${task.completed ? 'completed' : ''}">
                         ${task.text}
                     </span>
+                <span class="task-date">${new Date(task.date).toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })}</span>
                     <button class="delete-btn" onclick="deleteTask(${index})">删除</button>
                 `;
                 taskList.appendChild(li);
@@ -141,7 +143,12 @@
             const text = input.value.trim();
 
             if (text) {
-                tasks.push({ text, completed: false });
+                const taskDate = document.getElementById('taskDate').value || new Date().toISOString().split('T')[0];
+                tasks.push({ 
+                    text, 
+                    date: taskDate,
+                    completed: false 
+                });
                 input.value = '';
                 saveTasks();
                 renderTasks();
